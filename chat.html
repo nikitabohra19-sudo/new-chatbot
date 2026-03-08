@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}AI Chat{% endblock %}
+{% block content %}
+<div class="chat-container">
+    <div class="chat-header">
+        <h2>🤖 AI Tool Assistant</h2>
+        <p style="color:var(--text-muted);font-size:0.9rem">Ask me anything about AI tools! I understand any language.</p>
+    </div>
+    
+    <div class="chat-messages" id="chatMessages">
+        <div class="chat-msg bot">
+            👋 Hi! I'm your AI tool assistant. Tell me what you need help with and I'll recommend the best AI tools for you!<br><br>
+            Try asking things like:<br>
+            • "I want to create images with AI"<br>
+            • "Best free coding assistants"<br>
+            • "AI tools for video editing"<br>
+            • "Help me write better content"
+        </div>
+    </div>
+    
+    <div class="chat-input-wrap">
+        <input type="text" id="chatInput" placeholder="Type your question in any language...">
+        <button onclick="sendChat()">➤</button>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Explore AI Tools{% endblock %}
+{% block content %}
+<div class="explore-layout">
+    <!-- Sidebar -->
+    <aside class="filter-sidebar">
+        <h3 class="filter-title">🔍 Filters</h3>
+        
+        <!-- Search -->
+        <div class="form-group">
+            <form method="GET" action="/explore">
+                <input type="text" name="q" placeholder="Search tools..." value="{{ search_q or '' }}">
+                {% if selected_cat %}<input type="hidden" name="category" value="{{ selected_cat }}">{% endif %}
+            </form>
+        </div>
+        
+        <!-- Categories -->
+        <div class="filter-group">
+            <h4>Category</h4>
+            <a href="/explore{% if search_q %}?q={{ search_q }}{% endif %}" class="filter-option {{ 'active' if not selected_cat }}">All Categories</a>
+            {% for cat in categories %}
+            <a href="/explore?category={{ cat.name }}{% if search_q %}&q={{ search_q }}{% endif %}" 
+               class="filter-option {{ 'active' if selected_cat == cat.name }}">
+                {{ cat.icon }} {{ cat.name }} ({{ cat.tool_count }})
+            </a>
+            {% endfor %}
+        </div>
+        
+        <!-- Pricing -->
+        <div class="filter-group">
+            <h4>Pricing</h4>
+            <a href="/explore?{% if selected_cat %}category={{ selected_cat }}&{% endif %}{% if search_q %}q={{ search_q }}{% endif %}" class="filter-option {{ 'active' if not selected_pricing }}">All</a>
+            <a href="/explore?pricing=Free{% if selected_cat %}&category={{ selected_cat }}{% endif %}{% if search_q %}&q={{ search_q }}{% endif %}" class="filter-option {{ 'active' if selected_pricing == 'Free' }}">🟢 Free</a>
+            <a href="/explore?pricing=Freemium{% if selected_cat %}&category={{ selected_cat }}{% endif %}{% if search_q %}&q={{ search_q }}{% endif %}" class="filter-option {{ 'active' if selected_pricing == 'Freemium' }}">🔵 Freemium</a>
+            <a href="/explore?pricing=Paid{% if selected_cat %}&category={{ selected_cat }}{% endif %}{% if search_q %}&q={{ search_q }}{% endif %}" class="filter-option {{ 'active' if selected_pricing == 'Paid' }}">🟠 Paid</a>
+        </div>
+    </aside>
+    
+    <!-- Results -->
+    <main>
+        <div class="results-header">
+            <h2 class="section-title">
+                {% if search_q %}Results for "<span>{{ search_q }}</span>"
+                {% elif selected_cat %}<span>{{ selected_cat }}</span> Tools
+                {% else %}All <span>AI Tools</span>
+                {% endif %}
+            </h2>
+            <span style="color:var(--text-muted);font-size:0.9rem">{{ tools|length }} tools found</span>
+        </div>
+        
+        <div class="tools-grid">
+            {% for tool in tools %}
+            <div class="tool-card" onclick="window.location='/tool/{{ tool.id }}'">
+                {% if tool.is_trending %}<span class="badge badge-trending">🔥 Trending</span>{% endif %}
+                {% if tool.is_new %}<span class="badge badge-new">🆕 New</span>{% endif %}
+                <div class="tool-header">
+                    <span class="tool-icon">{{ tool.logo }}</span>
+                    <div>
+                        <div class="tool-name">{{ tool.name }}</div>
+                        <div class="tool-tagline">{{ tool.tagline }}</div>
+                    </div>
+                </div>
+                <div class="tool-desc">{{ tool.description }}</div>
+                <div class="tool-meta">
+                    <span class="tool-rating">★ {{ tool.rating }}</span>
+                    <span class="badge {{ pricing_badge(tool.pricing) }}">{{ tool.pricing }}</span>
+                    <a href="{{ tool.url }}" target="_blank" class="visit-btn" onclick="event.stopPropagation()">Visit ↗</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if not tools %}
+        <div class="text-center mt-4" style="padding:60px 0">
+            <div style="font-size:3rem;margin-bottom:16px">🔍</div>
+            <h3>No tools found</h3>
+            <p style="color:var(--text-muted)">Try different keywords or <a href="/explore">browse all tools</a></p>
+        </div>
+        {% endif %}
+    </main>
+</div>
+{% endblock %}

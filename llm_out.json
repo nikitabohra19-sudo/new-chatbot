@@ -1,0 +1,81 @@
+{
+    "intent": "search",
+    "summary_markdown": "\ud83c\udfaf **I understand you're looking for**: powerful AI tools that offer advanced capabilities or specialized power beyond ChatGPT and other popular AI tools you mentioned.\n\n\ud83d\udca1 **Pro tip**: For truly powerful results, consider using specialized AI tools for specific tasks (like video or coding) or combining advanced general-purpose models like ChatGPT and Claude for a comprehensive workflow.\n\n\ud83d\udd0d **Want me to go deeper?** I can compare any of these tools, find free alternatives, or search for tools launched this week.",
+    "tools_to_show": [
+        {
+            "name": "Claude",
+            "tier_label": "\ud83d\udfe2 ESTABLISHED",
+            "what_it_does": "An advanced AI assistant known for its strong reasoning, long context windows, and nuanced conversations.",
+            "relevance": "Often considered a direct competitor or complementary tool to ChatGPT, excelling in complex text analysis and generation.",
+            "community_verdict": "Real users are saying: 'Many AI experts now use them like this: A dual-AI setup with ChatGPT + Claude' for creativity and handling coding/long contexts.",
+            "comparison": "Offers superior handling of long documents and complex reasoning compared to general ChatGPT.",
+            "satisfaction_signal": "High adoption among professionals and developers for complex tasks.",
+            "best_for": "Long-form content generation, complex data analysis, coding assistance, nuanced conversations.",
+            "category": "Writing | Coding | Research",
+            "power_level": "Advanced",
+            "url": "https://www.anthropic.com/claude",
+            "pricing": "Freemium | Paid",
+            "source": "Web"
+        },
+        {
+            "name": "Synthesia",
+            "tier_label": "\ud83d\udfe2 ESTABLISHED",
+            "what_it_does": "AI video generation platform that creates realistic videos from text with AI avatars and voiceovers.",
+            "relevance": "Explicitly cited as a 'powerful AI tool for video creation' in recent discussions, offering capabilities far beyond general AI models for this specific task.",
+            "community_verdict": "Highly regarded for creating professional-quality videos without cameras or actors.",
+            "comparison": "Significantly more powerful and specialized for video generation than ChatGPT's general capabilities.",
+            "satisfaction_signal": "Widely used by businesses for marketing, training, and communication.",
+            "best_for": "Corporate training videos, marketing content, explainer videos, personalized video messages.",
+            "category": "Video",
+            "power_level": "Advanced",
+            "url": "https://www.synthesia.io",
+            "pricing": "Paid",
+            "source": "Web"
+        },
+        {
+            "name": "ElevenLabs",
+            "tier_label": "\ud83d\udfe2 ESTABLISHED",
+            "what_it_does": "Leading AI platform for realistic voice generation and voice cloning, offering highly natural-sounding speech.",
+            "relevance": "Explicitly cited as a 'powerful AI tool for realistic voice generation' in recent discussions, excelling in a specialized audio domain.",
+            "community_verdict": "Praised for its human-like voice quality and emotional range.",
+            "comparison": "Offers superior voice synthesis and cloning capabilities compared to general text-to-speech features in other AI tools.",
+            "satisfaction_signal": "High adoption in content creation, audiobooks, and gaming.",
+            "best_for": "Audiobooks, podcast narration, voiceovers, character voices, accessibility tools.",
+            "category": "Audio/Voice",
+            "power_level": "Advanced",
+            "url": "https://elevenlabs.io",
+            "pricing": "Freemium | Paid",
+            "source": "Web"
+        },
+        {
+            "name": "Cursor",
+            "tier_label": "\ud83d\udfe2 ESTABLISHED",
+            "what_it_does": "An AI-first code editor designed to help developers write, debug, and understand code faster with integrated AI assistance.",
+            "relevance": "Offers a deeply integrated and powerful AI experience specifically for coding, going beyond what ChatGPT can do as a standalone chat interface for developers.",
+            "community_verdict": "Developers appreciate its ability to generate, refactor, and debug code directly within the IDE.",
+            "comparison": "Provides a more powerful and seamless coding experience than using ChatGPT for code generation.",
+            "satisfaction_signal": "Strong growth and positive reviews in the developer community.",
+            "best_for": "Software development, code generation, debugging, code refactoring, learning new codebases.",
+            "category": "Coding",
+            "power_level": "Advanced",
+            "url": "https://cursor.com",
+            "pricing": "Freemium | Paid",
+            "source": "Local DB"
+        },
+        {
+            "name": "Veo",
+            "tier_label": "\ud83d\udfe0 VERY NEW",
+            "what_it_does": "Generates high-quality, creative AI videos from text or image prompts with advanced cinematic control.",
+            "relevance": "Mentioned in the context of 'Best AI Tools for 2026' and for generating 'realistic videos from a prompt,' indicating its power in cutting-edge video creation.",
+            "community_verdict": "Positioned as a strong contender in the text-to-video space, offering impressive visual quality.",
+            "comparison": "Offers advanced video generation capabilities, similar to Synthesia, providing a powerful alternative for creative video needs beyond general AI tools.",
+            "satisfaction_signal": "Emerging buzz as a new powerful video AI from Google DeepMind.",
+            "best_for": "Creative video content, short films, social media videos, concept visualization.",
+            "category": "Video",
+            "power_level": "Advanced",
+            "url": "https://deepmind.google/technologies/veo/",
+            "pricing": "Unknown",
+            "source": "Web"
+        }
+    ]
+}

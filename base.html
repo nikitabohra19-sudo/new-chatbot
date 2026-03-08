@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI Navigator{% endblock %} — Discover the Best AI Tools</title>
+    <meta name="description" content="Find the perfect AI tool for any task. Compare, explore, and get personalized recommendations from 70+ AI tools.">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="/" class="nav-logo">🧭 AI Navigator</a>
+        
+        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        
+        <ul class="nav-links" id="navLinks">
+            <li><a href="/" class="{{ 'active' if request.path == '/' }}">Home</a></li>
+            <li><a href="/explore" class="{{ 'active' if request.path == '/explore' }}">Explore</a></li>
+            <li><a href="/compare" class="{{ 'active' if request.path == '/compare' }}">Compare</a></li>
+            <li><a href="/chat" class="{{ 'active' if '/chat' in request.path }}">AI Chat</a></li>
+        </ul>
+        
+        <div class="nav-right">
+            <div class="nav-search">
+                <input type="text" placeholder="Search tools..." oninput="onSearch(this)" id="navSearchInput">
+                <div class="search-dropdown" id="searchDropdown"></div>
+            </div>
+            <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☀️</button>
+            {% if user %}
+            <div class="notif-wrap">
+                <button class="notif-btn" onclick="toggleNotifications()">🔔<span class="notif-badge" id="notifBadge" style="display:none">0</span></button>
+                <div class="notif-panel" id="notifPanel">
+                    <div class="notif-empty">Loading...</div>
+                </div>
+            </div>
+            {% endif %}
+            <div class="user-menu">
+                {% if user %}
+                    <a href="/settings">⚙ {{ user.username }}</a>
+                {% else %}
+                    <a href="/login">Sign In</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-wrap">
+        {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">{{ msg }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Content -->
+    {% block content %}{% endblock %}
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3>🧭 AI Navigator</h3>
+                <p>Your guide to the world of AI tools. Discover, compare, and find the perfect AI tool for any task.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Navigate</h4>
+                <a href="/">Home</a>
+                <a href="/explore">Explore Tools</a>
+                <a href="/compare">Compare</a>
+                <a href="/chat">AI Assistant</a>
+            </div>
+            <div class="footer-col">
+                <h4>Categories</h4>
+                <a href="/explore?category=Writing">Writing</a>
+                <a href="/explore?category=Image">Image</a>
+                <a href="/explore?category=Code">Code</a>
+                <a href="/explore?category=Video">Video</a>
+            </div>
+            <div class="footer-col">
+                <h4>Account</h4>
+                <a href="/login">Sign In</a>
+                <a href="/register">Register</a>
+                <a href="/settings">Settings</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 AI Navigator. Built with 💜 for the AI community.
+        </div>
+    </footer>
+
+    <!-- Feedback Widget -->
+    <button class="feedback-btn" onclick="toggleFeedback()">💬</button>
+    <div class="feedback-modal" id="feedbackModal">
+        <h3>💬 Send Feedback</h3>
+        <div class="form-group">
+            <label>Your message</label>
+            <textarea id="feedbackMsg" rows="3" placeholder="What do you think?"></textarea>
+        </div>
+        <div class="form-group">
+            <label>Rating</label>
+            <select id="feedbackRating">
+                <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                <option value="4">⭐⭐⭐⭐ Good</option>
+                <option value="3">⭐⭐⭐ Okay</option>
+                <option value="2">⭐⭐ Poor</option>
+                <option value="1">⭐ Bad</option>
+            </select>
+        </div>
+        <button class="btn-primary" onclick="submitFeedback()">Send Feedback</button>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

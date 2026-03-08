@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% block title %}Compare Tools{% endblock %}
+{% block content %}
+<div class="compare-section">
+    <h2 class="section-title mb-2">⚖️ <span>Compare</span> AI Tools</h2>
+    <p style="color:var(--text-muted);margin-bottom:24px">Type any AI tool name — even tools not in our database. Our AI will search the web in real time!</p>
+    
+    <div class="compare-inputs">
+        <div class="compare-input-group">
+            <label>Tool 1</label>
+            <div class="compare-search-wrap">
+                <input type="text" id="compInput1" class="compare-search" placeholder="e.g. ChatGPT, Claude, Cursor..." autocomplete="off">
+                <div class="compare-dropdown" id="compDrop1"></div>
+            </div>
+        </div>
+        <div class="compare-vs">VS</div>
+        <div class="compare-input-group">
+            <label>Tool 2</label>
+            <div class="compare-search-wrap">
+                <input type="text" id="compInput2" class="compare-search" placeholder="e.g. Gemini, Perplexity, Copilot..." autocomplete="off">
+                <div class="compare-dropdown" id="compDrop2"></div>
+            </div>
+        </div>
+        <div class="compare-vs">VS</div>
+        <div class="compare-input-group">
+            <label>Tool 3 <span style="color:var(--text-muted);font-weight:400">(optional)</span></label>
+            <div class="compare-search-wrap">
+                <input type="text" id="compInput3" class="compare-search" placeholder="Optional third tool..." autocomplete="off">
+                <div class="compare-dropdown" id="compDrop3"></div>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn-primary compare-btn" id="compareBtn" onclick="runComparison()">
+        <span id="compareBtnText">⚖️ Compare Now</span>
+        <span id="compareSpinner" style="display:none" class="spinner"></span>
+    </button>
+
+    <!-- AI Comparison Result -->
+    <div id="compareResult" style="display:none">
+        <!-- AI Summary -->
+        <div class="compare-ai-summary" id="compareSummary"></div>
+        
+        <!-- Comparison Table -->
+        <div id="compareTableWrap"></div>
+    </div>
+
+    <!-- DB Quick Compare (fallback / initial state) -->
+    {% if tools %}
+    <h3 style="margin-top:32px;color:var(--text-secondary)">📊 Database Comparison</h3>
+    <table class="compare-table">
+        <thead>
+            <tr>
+                <th>Feature</th>
+                {% for t in tools %}
+                <th>
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <span style="font-size:1.5rem">{{ t.logo }}</span>
+                        <span>{{ t.name }}</span>
+                    </div>
+                </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Category</strong></td>
+                {% for t in tools %}<td>{{ t.category }}</td>{% endfor %}
+            </tr>
+            <tr>
+                <td><strong>Rating</strong></td>
+                {% for t in tools %}<td><span class="tool-rating">★ {{ t.rating }}</span></td>{% endfor %}
+            </tr>
+            <tr>
+                <td><strong>Pricing</strong></td>
+                {% for t in tools %}<td><span class="badge {{ pricing_badge(t.pricing) }}">{{ t.pricing }}</span></td>{% endfor %}
+            </tr>
+            <tr>
+                <td><strong>Description</strong></td>
+                {% for t in tools %}<td style="font-size:0.85rem">{{ t.description }}</td>{% endfor %}
+            </tr>
+            <tr>
+                <td><strong>Features</strong></td>
+                {% for t in tools %}
+                <td><ul style="margin:0;padding-left:16px;font-size:0.85rem">
+                    {% for f in t.features.split(',') %}<li>{{ f.strip() }}</li>{% endfor %}
+                </ul></td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td><strong>Best For</strong></td>
+                {% for t in tools %}
+                <td><ul style="margin:0;padding-left:16px;font-size:0.85rem">
+                    {% for u in t.use_cases.split(',') %}<li>{{ u.strip() }}</li>{% endfor %}
+                </ul></td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td><strong>Visit</strong></td>
+                {% for t in tools %}
+                <td><a href="{{ t.url }}" target="_blank" class="visit-btn">Visit ↗</a></td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+
+<script>
+// ─── Compare Search Autocomplete ───
+let compTimers = {};
+function setupCompareInput(inputId, dropId) {
+    const input = document.getElementById(inputId);
+    const drop = document.getElementById(dropId);
+    if (!input || !drop) return;
+
+    input.addEventListener('input', () => {
+        clearTimeout(compTimers[inputId]);
+        const q = input.value.trim();
+        if (q.length < 1) { drop.classList.remove('show'); return; }
+        compTimers[inputId] = setTimeout(async () => {
+            try {
+                const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+                const tools = await res.json();
+                if (tools.length === 0) {
+                    drop.innerHTML = `<div class="compare-drop-item custom" onclick="selectCompTool('${inputId}','${dropId}','${escapeAttr(q)}')">
+                        <span>🌐</span><div><div style="font-weight:600">Use "${escapeHtml(q)}"</div><div style="font-size:0.7rem;color:var(--text-muted)">AI will search the web for this tool</div></div>
+                    </div>`;
+                    drop.classList.add('show');
+                    return;
+                }
+                let html = tools.slice(0, 5).map(t =>
+                    `<div class="compare-drop-item" onclick="selectCompTool('${inputId}','${dropId}','${escapeAttr(t.name)}')">
+                        <span>${t.logo || '🤖'}</span>
+                        <div>
+                            <div style="font-weight:600;font-size:0.88rem">${escapeHtml(t.name)}</div>
+                            <div style="font-size:0.7rem;color:var(--text-muted)">${t.category} · ⭐${t.rating}</div>
+                        </div>
+                    </div>`
+                ).join('');
+                // Always add a "use typed name" option at bottom
+                html += `<div class="compare-drop-item custom" onclick="selectCompTool('${inputId}','${dropId}','${escapeAttr(q)}')">
+                    <span>🌐</span><div><div style="font-weight:600">Search web for "${escapeHtml(q)}"</div><div style="font-size:0.7rem;color:var(--text-muted)">Compare any tool, even outside our database</div></div>
+                </div>`;
+                drop.innerHTML = html;
+                drop.classList.add('show');
+            } catch(e) {
+                drop.classList.remove('show');
+            }
+        }, 250);
+    });
+
+    // Close dropdown on outside click
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest(`#${inputId}`) && !e.target.closest(`#${dropId}`)) {
+            drop.classList.remove('show');
+        }
+    });
+}
+
+function selectCompTool(inputId, dropId, name) {
+    document.getElementById(inputId).value = name;
+    document.getElementById(dropId).classList.remove('show');
+}
+
+function escapeAttr(s) {
+    return (s || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+function escapeHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s || '';
+    return d.innerHTML;
+}
+
+// ─── Run AI Comparison ───
+async function runComparison() {
+    const t1 = document.getElementById('compInput1').value.trim();
+    const t2 = document.getElementById('compInput2').value.trim();
+    const t3 = document.getElementById('compInput3').value.trim();
+
+    if (!t1 || !t2) {
+        alert('Please enter at least 2 tools to compare!');
+        return;
+    }
+
+    const tools = [t1, t2];
+    if (t3) tools.push(t3);
+
+    // Show loading
+    document.getElementById('compareBtnText').style.display = 'none';
+    document.getElementById('compareSpinner').style.display = 'inline-block';
+    document.getElementById('compareBtn').disabled = true;
+    document.getElementById('compareResult').style.display = 'none';
+
+    try {
+        const res = await fetch('/api/compare', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ tools: tools })
+        });
+        const data = await res.json();
+
+        // Render summary
+        const summaryDiv = document.getElementById('compareSummary');
+        summaryDiv.innerHTML = `<div class="compare-summary-text">${formatMarkdown(data.summary || '')}</div>`;
+
+        // Render comparison cards
+        const tableWrap = document.getElementById('compareTableWrap');
+        if (data.tools && data.tools.length) {
+            let html = '<div class="compare-cards">';
+            for (const t of data.tools) {
+                html += `<div class="compare-card">
+                    <div class="compare-card-header">
+                        <span class="compare-card-icon">🤖</span>
+                        <div>
+                            <div class="compare-card-name">${escapeHtml(t.name)}</div>
+                            <div class="compare-card-tag">${escapeHtml(t.tier_label || t.category || '')}</div>
+                        </div>
+                    </div>
+                    <div class="compare-card-body">
+                        <div class="compare-row"><strong>What it does</strong><span>${escapeHtml(t.what_it_does || t.description || '')}</span></div>
+                        <div class="compare-row"><strong>Category</strong><span>${escapeHtml(t.category || '')}</span></div>
+                        <div class="compare-row"><strong>Pricing</strong><span class="badge">${escapeHtml(t.pricing || 'N/A')}</span></div>
+                        <div class="compare-row"><strong>Power Level</strong><span>${escapeHtml(t.power_level || 'N/A')}</span></div>
+                        <div class="compare-row"><strong>Best For</strong><span>${escapeHtml(t.best_for || '')}</span></div>
+                        <div class="compare-row"><strong>Community</strong><span>${escapeHtml(t.community_verdict || '')}</span></div>
+                        <div class="compare-row"><strong>Strengths</strong><span>${escapeHtml(t.comparison || t.satisfaction_signal || '')}</span></div>
+                    </div>
+                    ${t.url ? `<a href="${t.url}" target="_blank" class="visit-btn compare-visit">Visit ${escapeHtml(t.name)} ↗</a>` : ''}
+                </div>`;
+            }
+            html += '</div>';
+            tableWrap.innerHTML = html;
+        } else {
+            tableWrap.innerHTML = '';
+        }
+
+        document.getElementById('compareResult').style.display = 'block';
+        document.getElementById('compareResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    } catch(e) {
+        alert('Something went wrong. Please try again!');
+    }
+
+    // Reset button
+    document.getElementById('compareBtnText').style.display = 'inline';
+    document.getElementById('compareSpinner').style.display = 'none';
+    document.getElementById('compareBtn').disabled = false;
+}
+
+// Simple markdown to HTML (bold, line breaks)
+function formatMarkdown(md) {
+    return md
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+}
+
+// Init autocomplete for all 3 inputs
+setupCompareInput('compInput1', 'compDrop1');
+setupCompareInput('compInput2', 'compDrop2');
+setupCompareInput('compInput3', 'compDrop3');
+</script>
+{% endblock %}

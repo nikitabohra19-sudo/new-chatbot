@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<!-- Hero -->
+<section class="hero">
+    <h1>Discover the Perfect AI Tool</h1>
+    <p>Explore <strong id="heroToolCount">{{ stats.total_tools }}+</strong> AI tools with ratings, comparisons, and beginner-friendly guides. Data updates automatically every day.</p>
+    <div class="hero-search">
+        <input type="text" id="heroSearch" placeholder="What do you want AI to help with? e.g. write blog posts, generate images...">
+        <button onclick="window.location.href='/explore?q='+document.getElementById('heroSearch').value">Search</button>
+    </div>
+    <div class="hero-stats">
+        <div class="hero-stat"><div class="num" id="statTools">{{ stats.total_tools }}+</div><div class="label">AI Tools</div></div>
+        <div class="hero-stat"><div class="num" id="statCats">{{ stats.total_categories }}</div><div class="label">Categories</div></div>
+        <div class="hero-stat"><div class="num">Free</div><div class="label">To Use</div></div>
+    </div>
+    <div style="margin-top:16px;font-size:0.75rem;color:var(--text-muted)">
+        Database auto-updates daily &middot; Last refresh: {{ stats.last_update }}
+    </div>
+</section>
+<script>
+// Auto-refresh stats every 5 minutes
+setInterval(async () => {
+    try {
+        const r = await fetch('/api/stats');
+        const s = await r.json();
+        document.getElementById('statTools').textContent = s.total_tools + '+';
+        document.getElementById('statCats').textContent = s.total_categories;
+        document.getElementById('heroToolCount').textContent = s.total_tools + '+';
+    } catch(e) {}
+}, 300000);
+</script>
+
+<!-- Trending -->
+<section class="section">
+    <div class="section-header">
+        <h2 class="section-title">🔥 <span>Trending</span> Tools</h2>
+        <a href="/explore" class="section-link">View All →</a>
+    </div>
+    <div class="carousel-wrap">
+        <button class="carousel-btn prev" onclick="scrollCarousel('trendingCarousel', -1)">‹</button>
+        <div class="carousel" id="trendingCarousel">
+            {% for tool in trending %}
+            <div class="tool-card" onclick="window.location='/tool/{{ tool.id }}'">
+                <span class="badge badge-trending">🔥 Trending</span>
+                <div class="tool-header">
+                    <span class="tool-icon">{{ tool.logo }}</span>
+                    <div>
+                        <div class="tool-name">{{ tool.name }}</div>
+                        <div class="tool-tagline">{{ tool.tagline }}</div>
+                    </div>
+                </div>
+                <div class="tool-desc">{{ tool.description }}</div>
+                <div class="tool-meta">
+                    <span class="tool-rating">★ {{ tool.rating }}</span>
+                    <span class="badge {{ pricing_badge(tool.pricing) }}">{{ tool.pricing }}</span>
+                    <a href="{{ tool.url }}" target="_blank" class="visit-btn" onclick="event.stopPropagation()">Visit ↗</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <button class="carousel-btn next" onclick="scrollCarousel('trendingCarousel', 1)">›</button>
+    </div>
+</section>
+
+<!-- Categories -->
+<section class="section">
+    <div class="section-header">
+        <h2 class="section-title">📂 Browse by <span>Category</span></h2>
+    </div>
+    <div class="cat-grid">
+        {% for cat in categories %}
+        <a href="/explore?category={{ cat.name }}" class="cat-card">
+            <div class="cat-icon">{{ cat.icon }}</div>
+            <div class="cat-name">{{ cat.name }}</div>
+            <div class="cat-count">{{ cat.tool_count }} tools</div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Featured -->
+<section class="section">
+    <div class="section-header">
+        <h2 class="section-title">⭐ Top <span>Rated</span> Tools</h2>
+        <a href="/explore" class="section-link">View All →</a>
+    </div>
+    <div class="tools-grid">
+        {% for tool in featured %}
+        <div class="tool-card" onclick="window.location='/tool/{{ tool.id }}'">
+            <div class="tool-header">
+                <span class="tool-icon">{{ tool.logo }}</span>
+                <div>
+                    <div class="tool-name">{{ tool.name }}</div>
+                    <div class="tool-tagline">{{ tool.tagline }}</div>
+                </div>
+            </div>
+            <div class="tool-desc">{{ tool.description }}</div>
+            <div class="tool-meta">
+                <span class="tool-rating">★ {{ tool.rating }}</span>
+                <span class="badge {{ pricing_badge(tool.pricing) }}">{{ tool.pricing }}</span>
+                <a href="{{ tool.url }}" target="_blank" class="visit-btn" onclick="event.stopPropagation()">Visit ↗</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- New Arrivals -->
+{% if new_tools %}
+<section class="section">
+    <div class="section-header">
+        <h2 class="section-title">🆕 New <span>Arrivals</span></h2>
+    </div>
+    <div class="carousel-wrap">
+        <button class="carousel-btn prev" onclick="scrollCarousel('newCarousel', -1)">‹</button>
+        <div class="carousel" id="newCarousel">
+            {% for tool in new_tools %}
+            <div class="tool-card" onclick="window.location='/tool/{{ tool.id }}'">
+                <span class="badge badge-new">🆕 New</span>
+                <div class="tool-header">
+                    <span class="tool-icon">{{ tool.logo }}</span>
+                    <div>
+                        <div class="tool-name">{{ tool.name }}</div>
+                        <div class="tool-tagline">{{ tool.tagline }}</div>
+                    </div>
+                </div>
+                <div class="tool-desc">{{ tool.description }}</div>
+                <div class="tool-meta">
+                    <span class="tool-rating">★ {{ tool.rating }}</span>
+                    <span class="badge {{ pricing_badge(tool.pricing) }}">{{ tool.pricing }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <button class="carousel-btn next" onclick="scrollCarousel('newCarousel', 1)">›</button>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA -->
+<section class="section text-center">
+    <h2 class="section-title" style="margin-bottom:16px">🤖 Need Help <span>Choosing?</span></h2>
+    <p style="color:var(--text-secondary);max-width:500px;margin:0 auto 24px">Ask our AI assistant! Describe what you need and get personalized recommendations instantly.</p>
+    <a href="/chat" class="visit-btn" style="font-size:1rem;padding:14px 36px">Try AI Assistant →</a>
+</section>
+
+{% endblock %}

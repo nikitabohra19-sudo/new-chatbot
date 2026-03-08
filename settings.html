@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<div class="settings-layout">
+    <h2 class="section-title mb-2">⚙️ <span>Settings</span></h2>
+    
+    <!-- Profile -->
+    <div class="settings-card">
+        <h3>👤 Profile</h3>
+        <form method="POST">
+            <input type="hidden" name="action" value="update_profile">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" value="{{ profile.username }}" disabled style="opacity:0.6">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" value="{{ profile.email }}">
+            </div>
+            <div class="form-group">
+                <label>Notification Email</label>
+                <input type="email" name="notify_email" value="{{ profile.notify_email or '' }}" placeholder="Get notified about new tools">
+            </div>
+            <button type="submit" class="btn-primary" style="width:auto;padding:10px 32px">Save Changes</button>
+        </form>
+    </div>
+    
+    <!-- Appearance -->
+    <div class="settings-card">
+        <h3>🎨 Appearance</h3>
+        <div class="toggle-wrap">
+            <div>
+                <strong>Dark Mode</strong>
+                <p style="color:var(--text-muted);font-size:0.85rem">Switch between dark and light themes</p>
+            </div>
+            <div class="toggle-switch {{ 'active' if profile.theme == 'dark' }}" onclick="toggleTheme();this.classList.toggle('active')"></div>
+        </div>
+    </div>
+    
+    <!-- Language -->
+    <div class="settings-card">
+        <h3>🌐 Language</h3>
+        <form method="POST">
+            <input type="hidden" name="action" value="update_language">
+            <div class="form-group">
+                <label>Response Language</label>
+                <select name="language">
+                    <option value="en" {{ 'selected' if profile.language == 'en' }}>English</option>
+                    <option value="hi" {{ 'selected' if profile.language == 'hi' }}>Hindi</option>
+                    <option value="es" {{ 'selected' if profile.language == 'es' }}>Spanish</option>
+                    <option value="fr" {{ 'selected' if profile.language == 'fr' }}>French</option>
+                    <option value="de" {{ 'selected' if profile.language == 'de' }}>German</option>
+                    <option value="ja" {{ 'selected' if profile.language == 'ja' }}>Japanese</option>
+                    <option value="zh" {{ 'selected' if profile.language == 'zh' }}>Chinese</option>
+                    <option value="ar" {{ 'selected' if profile.language == 'ar' }}>Arabic</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-primary" style="width:auto;padding:10px 32px">Update</button>
+        </form>
+    </div>
+    
+    <!-- Memory / Search History -->
+    <div class="settings-card">
+        <h3>🧠 Memory</h3>
+        <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:16px">Your recent searches are stored to improve recommendations.</p>
+        
+        {% if history %}
+        <ul class="history-list">
+            {% for h in history %}
+            <li class="history-item">
+                <span class="history-query">🔍 {{ h.query }}</span>
+                <span class="history-date">{{ time_ago(h.created_at) }} · {{ h.results_count }} results</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p style="color:var(--text-muted);padding:12px 0">No search history yet.</p>
+        {% endif %}
+        
+        <form method="POST" style="margin-top:16px">
+            <input type="hidden" name="action" value="clear_history">
+            <button type="submit" class="btn-secondary" style="color:#f87171;border-color:rgba(239,68,68,0.3)">🗑️ Clear Search History</button>
+        </form>
+    </div>
+    
+    <!-- Account -->
+    <div class="settings-card">
+        <h3>🔒 Account</h3>
+        <p style="color:var(--text-muted);font-size:0.88rem;margin-bottom:16px">Member since {{ time_ago(profile.created_at) }}</p>
+        <a href="/logout" class="btn-secondary">Sign Out</a>
+    </div>
+</div>
+{% endblock %}

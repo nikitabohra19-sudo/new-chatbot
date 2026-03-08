@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}{{ tool.name }}{% endblock %}
+{% block content %}
+
+<!-- Hero -->
+<div class="detail-hero">
+    <div class="detail-content">
+        <div class="detail-info">
+            <div class="flex items-center gap-2 mb-2">
+                <span style="font-size:3rem">{{ tool.logo }}</span>
+                <div>
+                    <h1>{{ tool.name }}</h1>
+                    <p class="detail-tagline">{{ tool.tagline }}</p>
+                </div>
+            </div>
+            <div class="flex gap-2 mb-2" style="gap:8px">
+                <span class="badge {{ pricing_badge(tool.pricing) }}">{{ tool.pricing }}</span>
+                <span class="badge" style="background:rgba(124,58,237,0.15);color:#a78bfa">{{ tool.category }}</span>
+                {% if tool.is_trending %}<span class="badge" style="background:rgba(239,68,68,0.15);color:#f87171">🔥 Trending</span>{% endif %}
+            </div>
+            <p class="detail-desc">{{ tool.description }}</p>
+            
+            <h3 style="margin-bottom:12px">✨ Features</h3>
+            <div class="features-list">
+                {% for f in tool.features.split(',') %}
+                <div class="feature-item">{{ f.strip() }}</div>
+                {% endfor %}
+            </div>
+            
+            <h3 style="margin-bottom:12px">🎯 Best For</h3>
+            <div class="features-list">
+                {% for u in tool.use_cases.split(',') %}
+                <div class="feature-item">{{ u.strip() }}</div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Action Card -->
+        <div class="detail-actions">
+            <div class="detail-rating">{{ tool.rating }}</div>
+            <div class="detail-stars">{{ stars(tool.rating) }}</div>
+            <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:20px">Based on user reviews</p>
+            <a href="{{ tool.url }}" target="_blank" class="visit-btn w-full" style="justify-content:center;padding:14px;font-size:1rem">
+                Visit {{ tool.name }} ↗
+            </a>
+            <a href="/compare?ids={{ tool.id }}" class="btn-secondary w-full mt-2" style="display:block;text-align:center">
+                Compare with Others
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Reviews -->
+<div class="reviews-section">
+    <h2 class="section-title mb-2">💬 <span>Reviews</span></h2>
+    
+    {% if reviews %}
+        {% for r in reviews %}
+        <div class="review-card">
+            <div class="review-header">
+                <span class="review-user">{{ r.username or 'Anonymous' }}</span>
+                <span class="review-date">{{ time_ago(r.created_at) }}</span>
+            </div>
+            <div class="review-stars">{{ stars(r.rating) }}</div>
+            <p class="review-text">{{ r.comment }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color:var(--text-muted);padding:24px 0">No reviews yet. Be the first to review!</p>
+    {% endif %}
+    
+    <!-- Review Form -->
+    <div class="review-form">
+        <h3 style="margin-bottom:16px">Write a Review</h3>
+        {% if user %}
+        <form method="POST" action="/tool/{{ tool.id }}/review">
+            <div class="star-select">
+                {% for i in range(1, 6) %}
+                <button type="button" onclick="setStars({{ i }})" class="{{ 'active' if i <= 5 }}">★</button>
+                {% endfor %}
+            </div>
+            <input type="hidden" name="rating" id="ratingInput" value="5">
+            <div class="form-group">
+                <textarea name="comment" rows="3" placeholder="Share your experience with {{ tool.name }}..."></textarea>
+            </div>
+            <button type="submit" class="btn-primary" style="width:auto;padding:10px 32px">Submit Review</button>
+        </form>
+        {% else %}
+        <p style="color:var(--text-muted)"><a href="/login">Sign in</a> to write a review.</p>
+        {% endif %}
+    </div>
+    
+    <!-- Similar Tools -->
+    {% if similar %}
+    <h2 class="section-title mt-4 mb-2">Similar <span>Tools</span></h2>
+    <div class="tools-grid">
+        {% for t in similar %}
+        <div class="tool-card" onclick="window.location='/tool/{{ t.id }}'">
+            <div class="tool-header">
+                <span class="tool-icon">{{ t.logo }}</span>
+                <div>
+                    <div class="tool-name">{{ t.name }}</div>
+                    <div class="tool-tagline">{{ t.tagline }}</div>
+                </div>
+            </div>
+            <div class="tool-meta">
+                <span class="tool-rating">★ {{ t.rating }}</span>
+                <span class="badge {{ pricing_badge(t.pricing) }}">{{ t.pricing }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
